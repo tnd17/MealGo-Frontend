@@ -17,6 +17,8 @@ This frontend application communicates with the MealGo Backend API to fetch and 
 ## Tech Stack
 
 This frontend is built using:
-- React
-- Vite
-- ...
+- Frontend: ReactJS
+- Backend: Spring Boot
+- Database: MySQL
+- ORM: Spring Data JPA
+- Testing API: Postman
