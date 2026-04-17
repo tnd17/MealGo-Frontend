@@ -1,11 +1,25 @@
 import { createContext, useEffect, useState } from "react";
-import { food_list } from "../assets/assets";
+import axios from "axios";
 
 export const StoreContext = createContext(null)
 
 const StoreContextProvider = (props) => {
 
     const [cartItems,setCartItems] = useState({});
+    const [food_list,setFoodList] = useState([]);
+
+    useEffect(()=>{ 
+        fetchFoods();
+    },[]);
+
+    const fetchFoods = async () => {
+        try {
+            const response = await axios.get("http://localhost:8080/api/foods");
+            setFoodList(response.data);
+        } catch (error) {
+            console.error("Error fetching foods:", error);
+        }
+    }
 
     const addToCart = (itemId) => {
         if(!cartItems[itemId]){
@@ -24,8 +38,10 @@ const StoreContextProvider = (props) => {
         let totalAmount = 0;
         for(const item in cartItems){
             if(cartItems[item] > 0){
-                let itemInfo = food_list.find((product) => product._id === item);
-                totalAmount += itemInfo.price * cartItems[item];
+                let itemInfo = food_list.find((product) => String(product.id) === String(item));
+                if(itemInfo) {
+                    totalAmount += itemInfo.price * cartItems[item];
+                }
             }
         }
         return totalAmount;

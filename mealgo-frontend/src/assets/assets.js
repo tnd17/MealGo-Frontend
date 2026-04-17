@@ -44,6 +44,14 @@ import food_30 from './food_30.png'
 import food_31 from './food_31.png'
 import food_32 from './food_32.png'
 
+import pho_bo from './pho_bo.png'
+import bun_cha from './bun_cha.png'
+import com_tam from './com_tam.png'
+import goi_cuon from './goi_cuon.png'
+import che_ba_mau from './che_ba_mau.png'
+import ca_phe_sua_da from './ca_phe_sua_da.png'
+import tra_dao from './tra_dao.png'
+
 import add_icon_white from './add_icon_white.png'
 import add_icon_green from './add_icon_green.png'
 import remove_icon_red from './remove_icon_red.png'
@@ -348,3 +356,16 @@ export const food_list = [
         category: "Noodles"
     }
 ]
+
+export const foodImages = {
+    "greek_salad.png": food_1,
+    "veg_roll.png": food_8,
+    "pho_bo.png": pho_bo,
+    "bun_cha.png": bun_cha,
+    "com_tam.png": com_tam,
+    "goi_cuon.png": goi_cuon,
+    "chocolate_cake.png": food_17,
+    "che_ba_mau.png": che_ba_mau,
+    "ca_phe_sua_da.png": ca_phe_sua_da,
+    "tra_dao.png": tra_dao
+}
