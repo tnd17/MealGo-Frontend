@@ -7,9 +7,11 @@ const StoreContextProvider = (props) => {
 
     const [cartItems,setCartItems] = useState({});
     const [food_list,setFoodList] = useState([]);
+    const [menu_list,setMenuList] = useState([]);
 
     useEffect(()=>{ 
         fetchFoods();
+        fetchCategories();
     },[]);
 
     const fetchFoods = async () => {
@@ -20,6 +22,15 @@ const StoreContextProvider = (props) => {
             console.error("Error fetching foods:", error);
         }
     }
+
+    const fetchCategories = async () => {
+        try{
+            const response = await axios.get("http://localhost:8080/api/categories");
+            setMenuList(response.data);
+        } catch(error){
+            console.error(error);
+        }
+    } 
 
     const addToCart = (itemId) => {
         if(!cartItems[itemId]){
@@ -49,6 +60,7 @@ const StoreContextProvider = (props) => {
 
     const contextValue = {
         food_list,
+        menu_list,
         cartItems,
         setCartItems,
         addToCart,

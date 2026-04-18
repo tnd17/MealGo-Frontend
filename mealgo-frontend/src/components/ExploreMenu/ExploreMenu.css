@@ -29,6 +29,8 @@
     cursor: pointer;
     border-radius: 50%;
     transition: 0.2s;
+    height: 7.5vw;
+    object-fit: cover;
 }
 .explore-menu-list-item p{
     margin-top: 10px;

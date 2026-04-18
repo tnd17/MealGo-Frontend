@@ -52,6 +52,9 @@ import che_ba_mau from './che_ba_mau.png'
 import ca_phe_sua_da from './ca_phe_sua_da.png'
 import tra_dao from './tra_dao.png'
 
+import rice from './rice.png'
+import drinks from './drinks.png'
+
 import add_icon_white from './add_icon_white.png'
 import add_icon_green from './add_icon_green.png'
 import remove_icon_red from './remove_icon_red.png'
@@ -368,4 +371,13 @@ export const foodImages = {
     "che_ba_mau.png": che_ba_mau,
     "ca_phe_sua_da.png": ca_phe_sua_da,
     "tra_dao.png": tra_dao
+}
+
+export const categoryImages = {
+    "Salad": menu_1,
+    "Rolls": menu_2,
+    "Dessert": menu_3,
+    "Noodles": menu_8,
+    "Rice": rice,
+    "Drinks": drinks
 }
