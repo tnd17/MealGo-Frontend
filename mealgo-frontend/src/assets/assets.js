@@ -52,6 +52,8 @@ import che_ba_mau from './che_ba_mau.png'
 import ca_phe_sua_da from './ca_phe_sua_da.png'
 import tra_dao from './tra_dao.png'
 
+import logo_mealgo from './logo_mealgo.png'
+
 import rice from './rice.png'
 import drinks from './drinks.png'
 
@@ -72,7 +74,7 @@ import logout_icon from './logout_icon.png'
 import parcel_icon from './parcel_icon.png'
 
 export const assets = {
-    logo,
+    logo: logo_mealgo,
     basket_icon,
     header_img,
     search_icon,

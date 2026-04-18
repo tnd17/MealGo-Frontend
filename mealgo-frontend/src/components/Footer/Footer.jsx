@@ -7,8 +7,8 @@ const Footer = () => {
     <div className='footer' id='footer'>
       <div className="footer-content">
         <div className="footer-content-left">
-            <img src={assets.logo} alt="" />
-            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Esse culpa voluptatum error ipsum architecto dolor nam sint totam. Perferendis temporibus ipsum molestias tempora id vero mollitia asperiores perspiciatis, laudantium animi?</p>
+            <img src={assets.logo} alt="" className='footer-logo'/>
+            <p>MealGo brings delicious meals from your favorite restaurants straight to your doorstep. We are committed to providing fresh ingredients, fast delivery, and a seamless ordering experience. Discover a variety of dishes, satisfy your cravings, and enjoy convenient food delivery anytime, anywhere.</p>
             <div className="footer-social-icons">
                 <img src={assets.facebook_icon} alt="" />
                 <img src={assets.twitter_icon} alt="" />
@@ -33,7 +33,7 @@ const Footer = () => {
         </div>
       </div>
       <hr />
-      <p className="footer-copyright">Copyright 2026 &copy; Tomato.com - All Right Reserved.</p>
+      <p className="footer-copyright">Copyright 2026 &copy; MealGo.com - All Right Reserved.</p>
     </div>
   )
 }
