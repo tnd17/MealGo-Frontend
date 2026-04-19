@@ -9,6 +9,8 @@ const StoreContextProvider = (props) => {
     const [food_list,setFoodList] = useState([]);
     const [menu_list,setMenuList] = useState([]);
 
+    const API_URL = "http://localhost:8080";
+
     useEffect(()=>{ 
         fetchFoods();
         fetchCategories();
@@ -16,7 +18,7 @@ const StoreContextProvider = (props) => {
 
     const fetchFoods = async () => {
         try {
-            const response = await axios.get("http://localhost:8080/api/foods");
+            const response = await axios.get("${API_URL}/api/foods");
             setFoodList(response.data);
         } catch (error) {
             console.error("Error fetching foods:", error);
@@ -25,7 +27,7 @@ const StoreContextProvider = (props) => {
 
     const fetchCategories = async () => {
         try{
-            const response = await axios.get("http://localhost:8080/api/categories");
+            const response = await axios.get("${API_URL}/api/categories");
             setMenuList(response.data);
         } catch(error){
             console.error(error);
@@ -41,8 +43,18 @@ const StoreContextProvider = (props) => {
         }
     }
 
+    // const removeFromCart = (itemId) => {
+    //     setCartItems((prev)=>({...prev,[itemId]:prev[itemId]-1}))
+    // }
+
     const removeFromCart = (itemId) => {
-        setCartItems((prev)=>({...prev,[itemId]:prev[itemId]-1}))
+        setCartItems((prev) => ({
+            ...prev,
+    
+            // nếu chưa có thì =0
+            // trừ ra âm thì lấy max là 0
+            [itemId]: Math.max((prev[itemId] || 0) - 1, 0)
+        }));
     }
 
     const getTotalCartAmount = () => {
