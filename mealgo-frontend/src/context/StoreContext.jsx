@@ -9,7 +9,7 @@ const StoreContextProvider = (props) => {
     const [food_list,setFoodList] = useState([]);
     const [menu_list,setMenuList] = useState([]);
 
-    const API_URL = "http://localhost:8080";
+    const API_URL = "http://localhost:8080/api";
 
     useEffect(()=>{ 
         fetchFoods();
@@ -18,7 +18,7 @@ const StoreContextProvider = (props) => {
 
     const fetchFoods = async () => {
         try {
-            const response = await axios.get("${API_URL}/api/foods");
+            const response = await axios.get(`${API_URL}/foods`);
             setFoodList(response.data);
         } catch (error) {
             console.error("Error fetching foods:", error);
@@ -27,7 +27,7 @@ const StoreContextProvider = (props) => {
 
     const fetchCategories = async () => {
         try{
-            const response = await axios.get("${API_URL}/api/categories");
+            const response = await axios.get(`${API_URL}/categories`);
             setMenuList(response.data);
         } catch(error){
             console.error(error);
