@@ -1,20 +1,13 @@
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-
-export const StoreContext = createContext(null)
+import { API_URL } from "../config/api";
+import { StoreContext } from "./storeContext";
 
 const StoreContextProvider = (props) => {
 
     const [cartItems,setCartItems] = useState({});
     const [food_list,setFoodList] = useState([]);
     const [menu_list,setMenuList] = useState([]);
-
-    const API_URL = "http://localhost:8080/api";
-
-    useEffect(()=>{ 
-        fetchFoods();
-        fetchCategories();
-    },[]);
 
     const fetchFoods = async () => {
         try {
@@ -33,6 +26,12 @@ const StoreContextProvider = (props) => {
             console.error(error);
         }
     } 
+
+    useEffect(()=>{ 
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchFoods();
+        fetchCategories();
+    },[]);
 
     const addToCart = (itemId) => {
         if(!cartItems[itemId]){
@@ -70,6 +69,10 @@ const StoreContextProvider = (props) => {
         return totalAmount;
     }
 
+    const clearCart = () => {
+        setCartItems({});
+    }
+
     const contextValue = {
         food_list,
         menu_list,
@@ -77,7 +80,8 @@ const StoreContextProvider = (props) => {
         setCartItems,
         addToCart,
         removeFromCart,
-        getTotalCartAmount
+        getTotalCartAmount,
+        clearCart
     }
     return (
         <StoreContext.Provider value={contextValue}>

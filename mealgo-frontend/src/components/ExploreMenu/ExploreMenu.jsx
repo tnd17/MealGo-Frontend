@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import './ExploreMenu.css'
 import { categoryImages } from '../../assets/assets'
-import { StoreContext } from '../../context/StoreContext'
+import { StoreContext } from '../../context/storeContext'
 
 const ExploreMenu = ({category,setCategory}) => {
 
@@ -12,7 +12,7 @@ const ExploreMenu = ({category,setCategory}) => {
       <h1>Explore our menu</h1>
       <p className='explore-menu-text'>Choose from a diverse menu featuring a delectable array of dishes. Our mission is to satisfy your cravings and elevate your dining experience, one delicious meal at a time.</p>
       <div className="explore-menu-list">
-        {menu_list.map((item, index)=>{
+        {menu_list.map((item)=>{
             return (
                 <div onClick={()=>setCategory(prev=>prev===item.name?"All":item.name)} key={item.id} className='explore-menu-list-item'>
                     <img className={category===item.name?"active":""} src={categoryImages[item.name]} alt="" />

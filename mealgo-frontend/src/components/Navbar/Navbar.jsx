@@ -2,10 +2,10 @@ import React, { useContext, useState } from 'react'
 import './Navbar.css'
 import { assets } from '../../assets/assets'
 import { Link } from 'react-router-dom';
-import { StoreContext } from '../../context/StoreContext';
-import { AuthContext } from '../../context/AuthContext';
+import { StoreContext } from '../../context/storeContext';
+import { AuthContext } from '../../context/authContext';
 
-const Navbar = ({ setShowLogin }) => {
+const Navbar = ({ openLogin }) => {
 
   const [menu, setMenu] = useState("home");
 
@@ -38,7 +38,7 @@ const Navbar = ({ setShowLogin }) => {
             <button onClick={logout}>Logout</button>
           </div>
           :
-          <button onClick={() => setShowLogin(true)}>sign in</button>
+          <button onClick={() => openLogin("navbar")}>sign in</button>
         }
 
       </div>
