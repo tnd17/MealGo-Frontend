@@ -12,13 +12,13 @@ const PlaceOrder = ({ openLogin }) => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // dùng để tránh redirect về cart sau khi đặt hàng thành công
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
 
@@ -31,7 +31,6 @@ const PlaceOrder = ({ openLogin }) => {
       }));
   }, [cartItems]);
 
-  // chưa login thì quay về cart + mở popup login
   useEffect(() => {
     if (!user) {
       openLogin("checkout");
@@ -39,8 +38,6 @@ const PlaceOrder = ({ openLogin }) => {
     }
   }, [user, openLogin, navigate]);
 
-  // cart rỗng thì chặn vào trang order
-  // nhưng nếu vừa order thành công thì bỏ qua
   useEffect(() => {
     if (!orderSuccess && cartOrderItems.length === 0) {
       navigate('/cart', {
@@ -57,22 +54,7 @@ const PlaceOrder = ({ openLogin }) => {
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
 
-    if (!user) {
-      setMessage({
-        type: "error",
-        text: "Please login before placing order."
-      });
-      openLogin("checkout");
-      return;
-    }
-
-    if (cartOrderItems.length === 0) {
-      setMessage({
-        type: "error",
-        text: "Your cart is empty."
-      });
-      return;
-    }
+    if (isSubmitting) return;
 
     if (!fullName.trim() || !phone.trim() || !address.trim()) {
       setMessage({
@@ -92,36 +74,37 @@ const PlaceOrder = ({ openLogin }) => {
     };
 
     try {
-      if (isSubmitting) return;
-
       setIsSubmitting(true);
       setMessage(null);
 
+      // STEP 1: tạo order
       const response = await axios.post(`${API_URL}/orders`, payload);
-      const data = response.data;
 
-      if (data && data.success) {
+      if (response.data.success) {
+
+        // STEP 2: clear cart DB
+        await axios.delete(`${API_URL}/cart/${user.id}`);
+
+        // STEP 3: clear cart local
+        clearCart();
+
+        setOrderSuccess(true);
 
         setMessage({
           type: "success",
-          text: `Order placed successfully! Order #${data.orderId}`
+          text: `Order placed successfully! Order #${response.data.orderId}`
         });
 
-        // đánh dấu thành công để useEffect không đá về cart
-        setOrderSuccess(true);
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
 
-        clearCart();
-
-        // chuyển luôn về home
-        navigate('/');
-
-        return;
+      } else {
+        setMessage({
+          type: "error",
+          text: response.data.message
+        });
       }
-
-      setMessage({
-        type: "error",
-        text: data?.message || "Cannot place order. Please try again."
-      });
 
     } catch (error) {
       console.error(error);
@@ -139,18 +122,17 @@ const PlaceOrder = ({ openLogin }) => {
   return (
     <form className='place-order' onSubmit={handleSubmitOrder}>
       <div className="place-order-left">
+
         <p className="title">Delivery Information</p>
 
-        {message && (
-          <p
-            style={{
-              color: message.type === "error" ? "#d32f2f" : "#2e7d32",
-              marginTop: 10
-            }}
-          >
+        {message &&
+          <p style={{
+            color: message.type === "error" ? "#d32f2f" : "#2e7d32",
+            marginTop: 10
+          }}>
             {message.text}
           </p>
-        )}
+        }
 
         <input
           type="text"
@@ -182,44 +164,42 @@ const PlaceOrder = ({ openLogin }) => {
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />
+
       </div>
 
       <div className="place-order-right">
         <div className="cart-total">
+
           <h2>Cart Totals</h2>
 
-          <div>
-            <div className="cart-total-details">
-              <p>Subtotal</p>
-              <p>${getTotalCartAmount()}</p>
-            </div>
+          <div className="cart-total-details">
+            <p>Subtotal</p>
+            <p>${getTotalCartAmount()}</p>
+          </div>
 
-            <hr />
+          <hr />
 
-            <div className="cart-total-details">
-              <p>Delivery Fee</p>
-              <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
-            </div>
+          <div className="cart-total-details">
+            <p>Delivery Fee</p>
+            <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
+          </div>
 
-            <hr />
+          <hr />
 
-            <div className="cart-total-details">
-              <b>Total</b>
-              <b>
-                $
-                {getTotalCartAmount() === 0
-                  ? 0
-                  : getTotalCartAmount() + 2}
-              </b>
-            </div>
+          <div className="cart-total-details">
+            <b>Total</b>
+            <b>
+              ${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}
+            </b>
           </div>
 
           <button
             type='submit'
-            disabled={isSubmitting || cartOrderItems.length === 0}
+            disabled={isSubmitting}
           >
             {isSubmitting ? "PLACING..." : "PLACE ORDER"}
           </button>
+
         </div>
       </div>
     </form>

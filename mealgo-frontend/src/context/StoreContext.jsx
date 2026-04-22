@@ -1,13 +1,35 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { API_URL } from "../config/api";
 import { StoreContext } from "./storeContext";
+import { AuthContext } from "./authContext";
 
 const StoreContextProvider = (props) => {
 
     const [cartItems,setCartItems] = useState({});
     const [food_list,setFoodList] = useState([]);
     const [menu_list,setMenuList] = useState([]);
+
+    const { user } = useContext(AuthContext);
+
+    useEffect(()=>{
+        if(user){
+            loadCartData();
+        }else{
+            setCartItems({});
+        }
+    },[user]);
+
+    const loadCartData = async () => {
+        const res = await axios.get(`${API_URL}/cart/${user.id}`);
+
+        const cartData = {};
+
+        res.data.forEach(item => {
+            cartData[item.food.id] = item.quantity;
+        });
+        setCartItems(cartData);
+    }
 
     const fetchFoods = async () => {
         try {
@@ -33,26 +55,48 @@ const StoreContextProvider = (props) => {
         fetchCategories();
     },[]);
 
-    const addToCart = (itemId) => {
-        if(!cartItems[itemId]){
-            setCartItems((prev)=>({...prev,[itemId]:1}))
+    // const addToCart = (itemId) => {
+    //     if(!cartItems[itemId]){
+    //         setCartItems((prev)=>({...prev,[itemId]:1}))
+    //     }
+    //     else{
+    //         setCartItems((prev)=>({...prev,[itemId]:prev[itemId]+1}))
+    //     }
+    // }
+
+    const addToCart = async (itemId) => {
+        if(user){
+            await axios.post(`${API_URL}/cart/${user.id}/add/${itemId}`);
         }
-        else{
-            setCartItems((prev)=>({...prev,[itemId]:prev[itemId]+1}))
-        }
+        setCartItems(prev => ({
+            ...prev,
+            [itemId]: (prev[itemId] || 0) + 1
+        }));
     }
 
     // const removeFromCart = (itemId) => {
     //     setCartItems((prev)=>({...prev,[itemId]:prev[itemId]-1}))
     // }
 
-    const removeFromCart = (itemId) => {
-        setCartItems((prev) => ({
-            ...prev,
+    // const removeFromCart = (itemId) => {
+    //     setCartItems((prev) => ({
+    //         ...prev,
     
-            // nếu chưa có thì =0
-            // trừ ra âm thì lấy max là 0
-            [itemId]: Math.max((prev[itemId] || 0) - 1, 0)
+    //         // nếu chưa có thì =0
+    //         // trừ ra âm thì lấy max là 0
+    //         [itemId]: Math.max((prev[itemId] || 0) - 1, 0)
+    //     }));
+    // }
+
+    const removeFromCart = async (itemId) => {
+
+        if(user){
+            await axios.post(`${API_URL}/cart/${user.id}/remove/${itemId}`);
+        }
+    
+        setCartItems(prev => ({
+            ...prev,
+            [itemId]: Math.max((prev[itemId] || 0)-1,0)
         }));
     }
 
