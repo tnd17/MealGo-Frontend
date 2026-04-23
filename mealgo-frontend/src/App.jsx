@@ -7,6 +7,7 @@ import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
 import Footer from './components/Footer/Footer'
 import LoginPopup from './components/LoginPopup/LoginPopup'
 import { useNavigate } from 'react-router-dom'
+import MyOrders from './pages/MyOrders/MyOrders'
 
 const App = () => {
 
@@ -46,6 +47,7 @@ const App = () => {
           <Route path='/' element={<Home />} />
           <Route path='/cart' element={<Cart openLogin={openLogin} />} />
           <Route path='/order' element={<PlaceOrder openLogin={openLogin} />} />
+          <Route path='/myorders' element={<MyOrders openLogin={openLogin}/>} />
         </Routes>
       </div>
       <Footer />

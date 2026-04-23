@@ -35,6 +35,8 @@ const Navbar = ({ openLogin }) => {
           <div className="navbar-user">
             <p>Hi, {user.name}</p>
 
+            <Link to='/myorders'>My Orders</Link>
+
             <button onClick={logout}>Logout</button>
           </div>
           :
