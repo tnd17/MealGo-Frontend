@@ -3,207 +3,294 @@ import './PlaceOrder.css'
 import { StoreContext } from '../../context/storeContext'
 import { AuthContext } from '../../context/authContext'
 import { useNavigate } from 'react-router-dom'
+
+import codImg from '../../assets/cod.png'
+import cardImg from '../../assets/card.png'
+
 import axios from 'axios'
 import { API_URL } from '../../config/api'
 
 const PlaceOrder = ({ openLogin }) => {
 
-  const { cartItems, getTotalCartAmount, clearCart } = useContext(StoreContext);
-  const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
+    const { cartItems, getTotalCartAmount, clearCart } = useContext(StoreContext)
+    const { user } = useContext(AuthContext)
+    const navigate = useNavigate()
 
-  const [orderSuccess, setOrderSuccess] = useState(false);
+    const [step, setStep] = useState(1)
+    const [orderId, setOrderId] = useState(null)
 
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [note, setNote] = useState("");
+    const [fullName, setFullName] = useState("")
+    const [phone, setPhone] = useState("")
+    const [address, setAddress] = useState("")
+    const [note, setNote] = useState("")
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState(null);
+    const [paymentMethod, setPaymentMethod] = useState("COD")
 
-  const cartOrderItems = useMemo(() => {
-    return Object.entries(cartItems)
-      .filter(([, quantity]) => quantity > 0)
-      .map(([foodId, quantity]) => ({
-        foodId: Number(foodId),
-        quantity
-      }));
-  }, [cartItems]);
+    const [cardNumber, setCardNumber] = useState("")
+    const [cardHolder, setCardHolder] = useState("")
+    const [expiry, setExpiry] = useState("")
+    const [cvv, setCvv] = useState("")
 
-  useEffect(() => {
-    if (!user) {
-      openLogin("checkout");
-      navigate('/cart');
-    }
-  }, [user, openLogin, navigate]);
+    const cartOrderItems = useMemo(() => {
+        return Object.entries(cartItems)
+            .filter(([, qty]) => qty > 0)
+            .map(([foodId, qty]) => ({
+                foodId: Number(foodId),
+                quantity: qty
+            }))
+    }, [cartItems])
 
-  useEffect(() => {
-    if (!orderSuccess && cartOrderItems.length === 0) {
-      navigate('/cart', {
-        state: {
-          message: {
-            type: "error",
-            text: "Your cart is empty."
-          }
+    // auto scroll top khi vào trang
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
+    useEffect(() => {
+        if (!user) {
+            openLogin()
+            navigate("/cart")
         }
-      });
-    }
-  }, [cartOrderItems.length, orderSuccess, navigate]);
+    }, [user])
 
-  const handleSubmitOrder = async (e) => {
-    e.preventDefault();
+    const total =
+        getTotalCartAmount() === 0
+            ? 0
+            : getTotalCartAmount() + 2
 
-    if (isSubmitting) return;
+    const handleProceed = async (e) => {
+        e.preventDefault()
 
-    if (!fullName.trim() || !phone.trim() || !address.trim()) {
-      setMessage({
-        type: "error",
-        text: "Please fill full name, phone and address."
-      });
-      return;
-    }
-
-    const payload = {
-      userId: user.id,
-      fullName: fullName.trim(),
-      phone: phone.trim(),
-      address: address.trim(),
-      note: note.trim(),
-      items: cartOrderItems
-    };
-
-    try {
-      setIsSubmitting(true);
-      setMessage(null);
-
-      // STEP 1: tạo order
-      const response = await axios.post(`${API_URL}/orders`, payload);
-
-      if (response.data.success) {
-
-        // STEP 2: clear cart DB
-        await axios.delete(`${API_URL}/cart/${user.id}`);
-
-        // STEP 3: clear cart local
-        clearCart();
-
-        setOrderSuccess(true);
-
-        setMessage({
-          type: "success",
-          text: `Order placed successfully! Order #${response.data.orderId}`
-        });
-
-        setTimeout(() => {
-          navigate('/');
-        }, 1000);
-
-      } else {
-        setMessage({
-          type: "error",
-          text: response.data.message
-        });
-      }
-
-    } catch (error) {
-      console.error(error);
-
-      setMessage({
-        type: "error",
-        text: "Cannot place order. Please try again."
-      });
-
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <form className='place-order' onSubmit={handleSubmitOrder}>
-      <div className="place-order-left">
-
-        <p className="title">Delivery Information</p>
-
-        {message &&
-          <p style={{
-            color: message.type === "error" ? "#d32f2f" : "#2e7d32",
-            marginTop: 10
-          }}>
-            {message.text}
-          </p>
+        const payload = {
+            userId: user.id,
+            fullName,
+            phone,
+            address,
+            note,
+            paymentMethod,
+            items: cartOrderItems
         }
 
-        <input
-          type="text"
-          placeholder='Full Name'
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          required
-        />
+        const res = await axios.post(`${API_URL}/orders`, payload)
 
-        <input
-          type="text"
-          placeholder='Phone'
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          required
-        />
+        if (res.data.success) {
 
-        <input
-          type="text"
-          placeholder='Address'
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          required
-        />
+            setOrderId(res.data.orderId)
 
-        <input
-          type="text"
-          placeholder='Note (optional)'
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
+            if (paymentMethod === "COD") {
+                await axios.delete(`${API_URL}/cart/${user.id}`)
+                clearCart()
 
-      </div>
+                alert("Order placed successfully!")
+                navigate("/myorders")
+                window.scrollTo(0, 0)
 
-      <div className="place-order-right">
-        <div className="cart-total">
+            } else {
+                setStep(2)
 
-          <h2>Cart Totals</h2>
+                // sang payment auto scroll top
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    })
+                }, 100)
+            }
+        }
+    }
 
-          <div className="cart-total-details">
-            <p>Subtotal</p>
-            <p>${getTotalCartAmount()}</p>
-          </div>
+    const payResult = async (success) => {
 
-          <hr />
+        await axios.put(
+            `${API_URL}/orders/${orderId}/pay?success=${success}`
+        )
 
-          <div className="cart-total-details">
-            <p>Delivery Fee</p>
-            <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
-          </div>
+        if (success) {
+            await axios.delete(`${API_URL}/cart/${user.id}`)
+            clearCart()
 
-          <hr />
+            alert("Payment Success!")
+            navigate("/myorders")
+            window.scrollTo(0, 0)
 
-          <div className="cart-total-details">
-            <b>Total</b>
-            <b>
-              ${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}
-            </b>
-          </div>
+        } else {
+            alert("Payment Failed!")
+        }
+    }
 
-          <button
-            type='submit'
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "PLACING..." : "PLACE ORDER"}
-          </button>
+    return (
+        <div className='place-order'>
+
+            {/* LEFT */}
+            <div className="place-order-left">
+
+                {step === 1 &&
+                    <form onSubmit={handleProceed}>
+
+                        <p className="title">Delivery Information</p>
+
+                        <input
+                            type="text"
+                            placeholder='Full Name'
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            required
+                        />
+
+                        <input
+                            type="text"
+                            placeholder='Phone'
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            required
+                        />
+
+                        <input
+                            type="text"
+                            placeholder='Address'
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            required
+                        />
+
+                        <input
+                            type="text"
+                            placeholder='Note'
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                        />
+
+                        {/* PAYMENT METHOD ĐẸP */}
+                        <div className="payment-method-box">
+
+                            <p className='pay-title'>
+                                Select Payment Method
+                            </p>
+
+                            <div className="pay-grid">
+
+                                <div
+                                    className={
+                                        paymentMethod === "COD"
+                                            ? "pay-card active"
+                                            : "pay-card"
+                                    }
+                                    onClick={() => setPaymentMethod("COD")}
+                                >
+                                    <img src={codImg} alt="" className="pay-icon-img" />
+                                    <h4>Cash On Delivery</h4>
+                                    <p>Pay when receiving order</p>
+                                </div>
+
+                                <div
+                                    className={
+                                        paymentMethod === "CARD"
+                                            ? "pay-card active"
+                                            : "pay-card"
+                                    }
+                                    onClick={() => setPaymentMethod("CARD")}
+                                >
+                                    <img src={cardImg} alt="" className="pay-icon-img" />
+                                    <h4>Card / VNPay / Momo</h4>
+                                    <p>Online payment gateway</p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <button className='main-btn'>
+                            Proceed To Payment
+                        </button>
+
+                    </form>
+                }
+
+                {step === 2 &&
+                    <div>
+
+                        <p className="title">Payment</p>
+
+                        <input
+                            type="text"
+                            placeholder='Card Number'
+                            value={cardNumber}
+                            onChange={(e) => setCardNumber(e.target.value)}
+                        />
+
+                        <input
+                            type="text"
+                            placeholder='Card Holder'
+                            value={cardHolder}
+                            onChange={(e) => setCardHolder(e.target.value)}
+                        />
+
+                        <div className="multi-fields">
+
+                            <input
+                                type="text"
+                                placeholder='MM/YY'
+                                value={expiry}
+                                onChange={(e) => setExpiry(e.target.value)}
+                            />
+
+                            <input
+                                type="text"
+                                placeholder='CVV'
+                                value={cvv}
+                                onChange={(e) => setCvv(e.target.value)}
+                            />
+
+                        </div>
+
+                        <button
+                            className='success-btn'
+                            onClick={() => payResult(true)}
+                        >
+                            Pay Success
+                        </button>
+
+                        <button
+                            className='fail-btn'
+                            onClick={() => payResult(false)}
+                        >
+                            Pay Fail
+                        </button>
+
+                    </div>
+                }
+
+            </div>
+
+            {/* RIGHT */}
+            <div className="place-order-right">
+
+                <div className="cart-total">
+
+                    <h2>Order Summary</h2>
+
+                    <div className="cart-total-details">
+                        <p>Subtotal</p>
+                        <p>${getTotalCartAmount()}</p>
+                    </div>
+
+                    <div className="cart-total-details">
+                        <p>Delivery</p>
+                        <p>$2</p>
+                    </div>
+
+                    <hr />
+
+                    <div className="cart-total-details">
+                        <b>Total</b>
+                        <b>${total}</b>
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
-      </div>
-    </form>
-  )
+    )
 }
 
 export default PlaceOrder

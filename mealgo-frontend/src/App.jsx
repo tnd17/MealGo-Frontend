@@ -10,6 +10,7 @@ import Admin from './pages/Admin/Admin'
 
 import Footer from './components/Footer/Footer'
 import LoginPopup from './components/LoginPopup/LoginPopup'
+import Payment from './pages/Payment/Payment'
 
 const App = () => {
 
@@ -57,6 +58,7 @@ const App = () => {
               <Route path='/order' element={<PlaceOrder openLogin={openLogin} />} />
               <Route path='/myorders' element={<MyOrders />} />
               <Route path='/admin' element={<Admin />} />
+              <Route path='/payment/:id' element={<Payment />} />
             </Routes>
           </div>
 
