@@ -1,56 +1,75 @@
 import React, { useState } from 'react'
 import Navbar from './components/Navbar/Navbar'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useNavigate, useLocation } from 'react-router-dom'
+
 import Home from './pages/Home/Home'
 import Cart from './pages/Cart/Cart'
 import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
+import MyOrders from './pages/MyOrders/MyOrders'
+import Admin from './pages/Admin/Admin'
+
 import Footer from './components/Footer/Footer'
 import LoginPopup from './components/LoginPopup/LoginPopup'
-import { useNavigate } from 'react-router-dom'
-import MyOrders from './pages/MyOrders/MyOrders'
 
 const App = () => {
 
-  const [showLogin,setShowLogin] = useState(false)
-  const [pendingRedirect, setPendingRedirect] = useState(null) // ví dụ: "/order"
-  const navigate = useNavigate();
+  const [showLogin, setShowLogin] = useState(false)
 
-  const openLogin = (reason) => {
-    // reason: "checkout" | "navbar" | ...
-    if (reason === "checkout") {
-      setPendingRedirect("/order");
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const isAdminPage =
+    location.pathname.startsWith("/admin")
+
+  const openLogin = () => {
+    setShowLogin(true)
+  }
+
+  const handleLoginSuccess = (user) => {
+
+    setShowLogin(false)
+
+    if (user.role === "ADMIN") {
+      navigate("/admin")
     } else {
-      setPendingRedirect(null);
+      navigate("/")
     }
-    setShowLogin(true);
-  };
-
-  const handleLoginSuccess = () => {
-    setShowLogin(false);
-
-    if (pendingRedirect) {
-      const to = pendingRedirect;
-      setPendingRedirect(null);
-      navigate(to);
-    }
-  };
+  }
 
   return (
     <>
-    {showLogin
-      ? <LoginPopup setShowLogin={setShowLogin} onLoginSuccess={handleLoginSuccess} />
-      : <></>
-    }
-      <div className='app'>
-        <Navbar openLogin={openLogin} />
+
+      {showLogin &&
+        <LoginPopup
+          setShowLogin={setShowLogin}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      }
+
+      {!isAdminPage &&
+        <>
+          <div className='app'>
+            <Navbar openLogin={openLogin} />
+
+            <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/cart' element={<Cart openLogin={openLogin} />} />
+              <Route path='/order' element={<PlaceOrder openLogin={openLogin} />} />
+              <Route path='/myorders' element={<MyOrders />} />
+              <Route path='/admin' element={<Admin />} />
+            </Routes>
+          </div>
+
+          <Footer />
+        </>
+      }
+
+      {isAdminPage &&
         <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/cart' element={<Cart openLogin={openLogin} />} />
-          <Route path='/order' element={<PlaceOrder openLogin={openLogin} />} />
-          <Route path='/myorders' element={<MyOrders openLogin={openLogin}/>} />
+          <Route path='/admin' element={<Admin />} />
         </Routes>
-      </div>
-      <Footer />
+      }
+
     </>
   )
 }
