@@ -10,7 +10,7 @@ import cardImg from '../../assets/card.png'
 import axios from 'axios'
 import { API_URL } from '../../config/api'
 
-const PlaceOrder = ({ openLogin }) => {
+const PlaceOrder = () => {
 
     const { cartItems, getTotalCartAmount, clearCart } = useContext(StoreContext)
     const { user } = useContext(AuthContext)
@@ -23,13 +23,13 @@ const PlaceOrder = ({ openLogin }) => {
     const [phone, setPhone] = useState("")
     const [address, setAddress] = useState("")
     const [note, setNote] = useState("")
+    const [email, setEmail] = useState("")
 
     const [paymentMethod, setPaymentMethod] = useState("COD")
 
-    const [cardNumber, setCardNumber] = useState("")
-    const [cardHolder, setCardHolder] = useState("")
-    const [expiry, setExpiry] = useState("")
-    const [cvv, setCvv] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false)
 
     const cartOrderItems = useMemo(() => {
         return Object.entries(cartItems)
@@ -40,17 +40,9 @@ const PlaceOrder = ({ openLogin }) => {
             }))
     }, [cartItems])
 
-    // auto scroll top khi vào trang
     useEffect(() => {
         window.scrollTo(0, 0)
     }, [])
-
-    useEffect(() => {
-        if (!user) {
-            openLogin()
-            navigate("/cart")
-        }
-    }, [user])
 
     const total =
         getTotalCartAmount() === 0
@@ -60,8 +52,13 @@ const PlaceOrder = ({ openLogin }) => {
     const handleProceed = async (e) => {
         e.preventDefault()
 
+        if (isSubmitting) return // ❌ chặn spam click
+
+        setIsSubmitting(true)
+
         const payload = {
-            userId: user.id,
+            userId: user?.id || null,
+            email: user ? null : email,
             fullName,
             phone,
             address,
@@ -70,63 +67,106 @@ const PlaceOrder = ({ openLogin }) => {
             items: cartOrderItems
         }
 
-        const res = await axios.post(`${API_URL}/orders`, payload)
+        try {
+            const res = await axios.post(`${API_URL}/orders`, payload)
 
-        if (res.data.success) {
+            if (res.data.success) {
 
-            setOrderId(res.data.orderId)
+                setOrderId(res.data.orderId)
 
-            if (paymentMethod === "COD") {
-                await axios.delete(`${API_URL}/cart/${user.id}`)
-                clearCart()
+                if (paymentMethod === "COD") {
 
-                alert("Order placed successfully!")
-                navigate("/myorders")
-                window.scrollTo(0, 0)
+                    if (user) {
+                        await axios.delete(`${API_URL}/cart/${user.id}`)
+                        clearCart()
+                    }
 
-            } else {
-                setStep(2)
+                    // ✅ show popup thay vì alert
+                    setShowSuccessPopup(true)
 
-                // sang payment auto scroll top
-                setTimeout(() => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    })
-                }, 100)
+                } else {
+                    setStep(2)
+                    window.scrollTo(0, 0)
+                }
             }
+
+        } catch (err) {
+            console.error(err)
+            alert("Error placing order")
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
     const payResult = async (success) => {
 
-        await axios.put(
-            `${API_URL}/orders/${orderId}/pay?success=${success}`
-        )
+        if (isSubmitting) return
+        setIsSubmitting(true)
 
-        if (success) {
-            await axios.delete(`${API_URL}/cart/${user.id}`)
-            clearCart()
+        try {
+            await axios.put(
+                `${API_URL}/orders/${orderId}/pay?success=${success}`
+            )
 
-            alert("Payment Success!")
-            navigate("/myorders")
-            window.scrollTo(0, 0)
+            if (success) {
 
-        } else {
-            alert("Payment Failed!")
+                if (user) {
+                    await axios.delete(`${API_URL}/cart/${user.id}`)
+                    clearCart()
+                }
+
+                // ✅ show popup
+                setShowSuccessPopup(true)
+
+            } else {
+                alert("Payment Failed!")
+            }
+
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setIsSubmitting(false)
         }
+    }
+
+    const handleClosePopup = () => {
+        setShowSuccessPopup(false)
+        navigate("/") // ✅ về home
+        window.scrollTo(0, 0)
     }
 
     return (
         <div className='place-order'>
 
-            {/* LEFT */}
+            {/* POPUP SUCCESS */}
+            {showSuccessPopup &&
+                <div className="popup-overlay">
+                    <div className="popup-box">
+                        <h2>🎉 Order Successful!</h2>
+                        <p>Please check your email for confirmation.</p>
+                        <button onClick={handleClosePopup}>
+                            OK
+                        </button>
+                    </div>
+                </div>
+            }
+
             <div className="place-order-left">
 
                 {step === 1 &&
                     <form onSubmit={handleProceed}>
 
                         <p className="title">Delivery Information</p>
+
+                        {!user &&
+                            <input
+                                type="email"
+                                placeholder='Your Email (Guest checkout)'
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        }
 
                         <input
                             type="text"
@@ -159,47 +199,37 @@ const PlaceOrder = ({ openLogin }) => {
                             onChange={(e) => setNote(e.target.value)}
                         />
 
-                        {/* PAYMENT METHOD ĐẸP */}
                         <div className="payment-method-box">
 
-                            <p className='pay-title'>
-                                Select Payment Method
-                            </p>
+                            <p className='pay-title'>Select Payment Method</p>
 
                             <div className="pay-grid">
 
                                 <div
-                                    className={
-                                        paymentMethod === "COD"
-                                            ? "pay-card active"
-                                            : "pay-card"
-                                    }
+                                    className={paymentMethod === "COD" ? "pay-card active" : "pay-card"}
                                     onClick={() => setPaymentMethod("COD")}
                                 >
                                     <img src={codImg} alt="" className="pay-icon-img" />
                                     <h4>Cash On Delivery</h4>
-                                    <p>Pay when receiving order</p>
                                 </div>
 
                                 <div
-                                    className={
-                                        paymentMethod === "CARD"
-                                            ? "pay-card active"
-                                            : "pay-card"
-                                    }
+                                    className={paymentMethod === "CARD" ? "pay-card active" : "pay-card"}
                                     onClick={() => setPaymentMethod("CARD")}
                                 >
                                     <img src={cardImg} alt="" className="pay-icon-img" />
-                                    <h4>Card / VNPay / Momo</h4>
-                                    <p>Online payment gateway</p>
+                                    <h4>Card / VNPay</h4>
                                 </div>
 
                             </div>
 
                         </div>
 
-                        <button className='main-btn'>
-                            Proceed To Payment
+                        <button
+                            className='main-btn'
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? "Processing..." : "Proceed To Payment"}
                         </button>
 
                     </form>
@@ -210,41 +240,18 @@ const PlaceOrder = ({ openLogin }) => {
 
                         <p className="title">Payment</p>
 
-                        <input
-                            type="text"
-                            placeholder='Card Number'
-                            value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value)}
-                        />
-
-                        <input
-                            type="text"
-                            placeholder='Card Holder'
-                            value={cardHolder}
-                            onChange={(e) => setCardHolder(e.target.value)}
-                        />
+                        <input placeholder='Card Number' />
+                        <input placeholder='Card Holder' />
 
                         <div className="multi-fields">
-
-                            <input
-                                type="text"
-                                placeholder='MM/YY'
-                                value={expiry}
-                                onChange={(e) => setExpiry(e.target.value)}
-                            />
-
-                            <input
-                                type="text"
-                                placeholder='CVV'
-                                value={cvv}
-                                onChange={(e) => setCvv(e.target.value)}
-                            />
-
+                            <input placeholder='MM/YY' />
+                            <input placeholder='CVV' />
                         </div>
 
                         <button
                             className='success-btn'
                             onClick={() => payResult(true)}
+                            disabled={isSubmitting}
                         >
                             Pay Success
                         </button>
@@ -252,6 +259,7 @@ const PlaceOrder = ({ openLogin }) => {
                         <button
                             className='fail-btn'
                             onClick={() => payResult(false)}
+                            disabled={isSubmitting}
                         >
                             Pay Fail
                         </button>
@@ -261,7 +269,6 @@ const PlaceOrder = ({ openLogin }) => {
 
             </div>
 
-            {/* RIGHT */}
             <div className="place-order-right">
 
                 <div className="cart-total">

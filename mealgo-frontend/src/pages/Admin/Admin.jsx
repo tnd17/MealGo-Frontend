@@ -141,7 +141,9 @@ const Admin = () => {
                     <tr>
                       <th>ID</th>
                       <th>Customer</th>
+                      <th>Type</th>
                       <th>Total</th>
+                      <th>Payment</th>
                       <th>Status</th>
                       <th>Date</th>
                       <th>Action</th>
@@ -152,19 +154,36 @@ const Admin = () => {
                     {orders.map(order => (
                       <tr key={order.id}>
                         <td>#{order.id}</td>
+
                         <td>{order.customerName}</td>
+
+                        <td>
+                          <span className={
+                            order.accountType === "GUEST"
+                              ? "badge guest"
+                              : "badge customer"
+                          }>
+                            {order.accountType}
+                          </span>
+                        </td>
+
                         <td>${order.totalAmount}</td>
+
+                        <td>
+                          {order.paymentMethod}
+                          <br />
+                          <small>{order.paymentStatus}</small>
+                        </td>
+
                         <td>{order.status}</td>
+
                         <td>{order.createdAt.slice(0, 10)}</td>
 
                         <td>
                           <select
                             value={order.status}
                             onChange={(e) =>
-                              updateStatus(
-                                order.id,
-                                e.target.value
-                              )
+                              updateStatus(order.id, e.target.value)
                             }
                           >
                             <option>PENDING</option>

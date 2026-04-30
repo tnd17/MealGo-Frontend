@@ -3,12 +3,11 @@ import './Cart.css'
 import { StoreContext } from '../../context/storeContext'
 import { useLocation, useNavigate } from 'react-router-dom';
 import { foodImages } from '../../assets/assets';
-import { AuthContext } from '../../context/authContext';
 
-const Cart = ({ openLogin }) => {
+const Cart = () => {
 
   const { cartItems, food_list, removeFromCart, getTotalCartAmount } = useContext(StoreContext);
-  const { user } = useContext(AuthContext);
+
   const [message, setMessage] = React.useState(null);
 
   const navigate = useNavigate();
@@ -18,23 +17,24 @@ const Cart = ({ openLogin }) => {
     const stateMessage = location.state?.message;
     if (stateMessage) {
       setMessage(stateMessage);
-      // clear history state so message doesn't persist on back/forward
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [location.state, location.pathname, navigate]);
 
   const handleCheckout = () => {
-    if (!user) {
-      setMessage({ type: "error", text: "Please login before checkout." });
-      openLogin("checkout");
+
+    if (getTotalCartAmount() === 0) {
+      setMessage({ type: "error", text: "Your cart is empty." });
       return;
     }
 
+    // cho phép guest checkout
     navigate('/order');
   }
 
   return (
     <div className='cart'>
+
       <div className="cart-items">
         <div className="cart-items-title">
           <p>Items</p>
@@ -44,19 +44,26 @@ const Cart = ({ openLogin }) => {
           <p>Total</p>
           <p>Remove</p>
         </div>
+
         <br />
         <hr />
+
         {food_list.map((item) => {
           if (cartItems[item.id] > 0) {
             return (
               <div key={item.id}>
                 <div className="cart-items-title cart-items-item">
-                  <img src={foodImages[item.image_url]} alt="item.name" />
+                  <img src={foodImages[item.image_url]} alt="" />
                   <p>{item.name}</p>
                   <p>${item.price}</p>
                   <p>{cartItems[item.id]}</p>
                   <p>${item.price * cartItems[item.id]}</p>
-                  <p onClick={()=>removeFromCart(item.id)} className='cross'>x</p>
+                  <p
+                    onClick={() => removeFromCart(item.id)}
+                    className='cross'
+                  >
+                    x
+                  </p>
                 </div>
                 <hr />
               </div>
@@ -64,31 +71,47 @@ const Cart = ({ openLogin }) => {
           }
         })}
       </div>
+
       <div className="cart-bottom">
+
         <div className="cart-total">
           <h2>Cart Totals</h2>
-          {message
-            ? <p style={{ color: message.type === "error" ? "#d32f2f" : "#2e7d32", marginTop: 10 }}>{message.text}</p>
-            : null
+
+          {message &&
+            <p style={{
+              color: message.type === "error" ? "#d32f2f" : "#2e7d32",
+              marginTop: 10
+            }}>
+              {message.text}
+            </p>
           }
+
           <div>
             <div className="cart-total-details">
               <p>Subtotal</p>
               <p>${getTotalCartAmount()}</p>
             </div>
+
             <hr />
+
             <div className="cart-total-details">
               <p>Delivery Fee</p>
-              <p>${getTotalCartAmount()===0?0:2}</p>
+              <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
             </div>
+
             <hr />
+
             <div className="cart-total-details">
               <b>Total</b>
-              <b>${getTotalCartAmount()===0?0:getTotalCartAmount()+2}</b>
+              <b>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</b>
             </div>
           </div>
-          <button onClick={handleCheckout}>PROCEED TO CHECKOUT</button>
+
+          <button onClick={handleCheckout}>
+            PROCEED TO CHECKOUT
+          </button>
         </div>
+
         <div className="cart-promocode">
           <div>
             <p>If you have a promo code, Enter it here</p>
@@ -98,6 +121,7 @@ const Cart = ({ openLogin }) => {
             </div>
           </div>
         </div>
+
       </div>
 
     </div>

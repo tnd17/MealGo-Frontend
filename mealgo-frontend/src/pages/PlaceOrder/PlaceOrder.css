@@ -158,3 +158,38 @@
     align-items:center;
     gap:15px;
 }
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.popup-box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    width: 320px;
+}
+
+.popup-box h2 {
+    margin-bottom: 10px;
+}
+
+.popup-box button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: tomato;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
