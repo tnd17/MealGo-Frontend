@@ -126,12 +126,28 @@
     border-radius:8px;
     font-size:12px;
     color:white;
-  }
+}
   
-  .badge.guest{
+.badge.guest{
     background:#ff9800;
-  }
+}
   
-  .badge.customer{
+.badge.customer{
     background:tomato;
-  }
+}
+
+.confirm-btn{
+    margin-left:10px;
+    padding:7px 12px;
+    border:none;
+    border-radius:6px;
+    background:#4caf50;
+    color:white;
+    cursor:pointer;
+    font-size:13px;
+}
+  
+.confirm-btn:disabled{
+    background:gray;
+    cursor:not-allowed;
+}

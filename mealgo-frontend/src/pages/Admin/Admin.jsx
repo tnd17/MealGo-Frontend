@@ -12,8 +12,9 @@ const Admin = () => {
   const navigate = useNavigate()
 
   const [tab, setTab] = useState("dashboard")
-
   const [orders, setOrders] = useState([])
+
+  const [loadingConfirm, setLoadingConfirm] = useState(null) // 🔥 chống spam click
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") {
@@ -21,7 +22,6 @@ const Admin = () => {
     }
   }, [user, navigate])
 
-  // load orders khi mở tab orders
   useEffect(() => {
     if (tab === "orders") {
       loadOrders()
@@ -42,9 +42,7 @@ const Admin = () => {
       await axios.put(
         `${API_URL}/orders/${orderId}/status?status=${status}`
       )
-
       loadOrders()
-
     } catch (error) {
       console.log(error)
     }
@@ -53,6 +51,26 @@ const Admin = () => {
   const handleLogout = () => {
     logout()
     navigate("/")
+  }
+
+  // 🔥 CONFIRM PAYMENT (EMAIL FLOW)
+  const confirmPayment = async (orderId) => {
+    if (loadingConfirm) return // chống double click
+
+    setLoadingConfirm(orderId)
+
+    try {
+      await axios.put(`${API_URL}/orders/${orderId}/confirm-payment`)
+
+      alert("Payment confirmed! Email sent to customer.")
+
+      loadOrders()
+    } catch (err) {
+      console.log(err)
+      alert("Error confirming payment")
+    } finally {
+      setLoadingConfirm(null)
+    }
   }
 
   return (
@@ -120,7 +138,6 @@ const Admin = () => {
         {/* CONTENT */}
         <div className="admin-content">
 
-          {/* DASHBOARD */}
           {tab === "dashboard" &&
             <>
               <h1>Dashboard</h1>
@@ -128,7 +145,6 @@ const Admin = () => {
             </>
           }
 
-          {/* ORDERS */}
           {tab === "orders" &&
             <>
               <h1>Orders</h1>
@@ -151,50 +167,76 @@ const Admin = () => {
                   </thead>
 
                   <tbody>
-                    {orders.map(order => (
-                      <tr key={order.id}>
-                        <td>#{order.id}</td>
+                    {orders.map(order => {
 
-                        <td>{order.customerName}</td>
+                      const isEmailPayment =
+                        order.accountType === "GUEST" &&
+                        order.paymentMethod === "CARD" &&
+                        order.paymentStatus === "UNPAID"
 
-                        <td>
-                          <span className={
-                            order.accountType === "GUEST"
-                              ? "badge guest"
-                              : "badge customer"
-                          }>
-                            {order.accountType}
-                          </span>
-                        </td>
+                      return (
+                        <tr key={order.id}>
+                          <td>#{order.id}</td>
 
-                        <td>${order.totalAmount}</td>
+                          <td>{order.customerName}</td>
 
-                        <td>
-                          {order.paymentMethod}
-                          <br />
-                          <small>{order.paymentStatus}</small>
-                        </td>
+                          <td>
+                            <span className={
+                              order.accountType === "GUEST"
+                                ? "badge guest"
+                                : "badge customer"
+                            }>
+                              {order.accountType}
+                            </span>
+                          </td>
 
-                        <td>{order.status}</td>
+                          <td>${order.totalAmount}</td>
 
-                        <td>{order.createdAt.slice(0, 10)}</td>
+                          <td>
+                            {order.paymentMethod}
+                            <br />
+                            <small>
+                              {order.paymentStatus === "UNPAID" && order.accountType === "GUEST" && order.paymentMethod === "CARD"
+                                ? "Waiting for email payment"
+                                : order.paymentStatus}
+                            </small>
+                          </td>
 
-                        <td>
-                          <select
-                            value={order.status}
-                            onChange={(e) =>
-                              updateStatus(order.id, e.target.value)
-                            }
-                          >
-                            <option>PENDING</option>
-                            <option>CONFIRMED</option>
-                            <option>SHIPPING</option>
-                            <option>COMPLETED</option>
-                            <option>CANCELLED</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
+                          <td>{order.status}</td>
+
+                          <td>{order.createdAt.slice(0, 10)}</td>
+
+                          <td>
+
+                            {isEmailPayment ? (
+                              <button
+                                className="confirm-btn"
+                                disabled={loadingConfirm === order.id}
+                                onClick={() => confirmPayment(order.id)}
+                              >
+                                {loadingConfirm === order.id
+                                  ? "Processing..."
+                                  : "Confirm Payment"}
+                              </button>
+                            ) : (
+                              <select
+                                value={order.status}
+                                onChange={(e) =>
+                                  updateStatus(order.id, e.target.value)
+                                }
+                              >
+                                <option>PENDING</option>
+                                <option>CONFIRMED</option>
+                                <option>SHIPPING</option>
+                                <option>COMPLETED</option>
+                                <option>CANCELLED</option>
+                              </select>
+                            )}
+
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
 
                 </table>
@@ -203,7 +245,6 @@ const Admin = () => {
             </>
           }
 
-          {/* FOODS */}
           {tab === "foods" &&
             <>
               <h1>Foods</h1>
@@ -211,7 +252,6 @@ const Admin = () => {
             </>
           }
 
-          {/* USERS */}
           {tab === "users" &&
             <>
               <h1>Users</h1>

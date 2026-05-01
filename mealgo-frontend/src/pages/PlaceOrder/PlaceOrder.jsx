@@ -28,7 +28,6 @@ const PlaceOrder = () => {
     const [paymentMethod, setPaymentMethod] = useState("COD")
 
     const [isSubmitting, setIsSubmitting] = useState(false)
-
     const [showSuccessPopup, setShowSuccessPopup] = useState(false)
 
     const cartOrderItems = useMemo(() => {
@@ -49,11 +48,13 @@ const PlaceOrder = () => {
             ? 0
             : getTotalCartAmount() + 2
 
+    // =========================
+    // HANDLE ORDER
+    // =========================
     const handleProceed = async (e) => {
         e.preventDefault()
 
-        if (isSubmitting) return // ❌ chặn spam click
-
+        if (isSubmitting) return
         setIsSubmitting(true)
 
         const payload = {
@@ -74,6 +75,9 @@ const PlaceOrder = () => {
 
                 setOrderId(res.data.orderId)
 
+                // =========================
+                // 🔥 CASE 1: COD (ALL)
+                // =========================
                 if (paymentMethod === "COD") {
 
                     if (user) {
@@ -81,12 +85,27 @@ const PlaceOrder = () => {
                         clearCart()
                     }
 
-                    // ✅ show popup thay vì alert
                     setShowSuccessPopup(true)
+                }
 
-                } else {
+                // =========================
+                // 🔥 CASE 2: GUEST + CARD
+                // =========================
+                else if (!user && paymentMethod === "CARD") {
+
+                    setShowSuccessPopup(true)
+                }
+
+                // =========================
+                // 🔥 CASE 3: CUSTOMER + CARD
+                // =========================
+                else {
+
                     setStep(2)
-                    window.scrollTo(0, 0)
+
+                    setTimeout(() => {
+                        window.scrollTo(0, 0)
+                    }, 100)
                 }
             }
 
@@ -98,6 +117,9 @@ const PlaceOrder = () => {
         }
     }
 
+    // =========================
+    // FAKE PAYMENT (CUSTOMER)
+    // =========================
     const payResult = async (success) => {
 
         if (isSubmitting) return
@@ -115,7 +137,6 @@ const PlaceOrder = () => {
                     clearCart()
                 }
 
-                // ✅ show popup
                 setShowSuccessPopup(true)
 
             } else {
@@ -131,19 +152,24 @@ const PlaceOrder = () => {
 
     const handleClosePopup = () => {
         setShowSuccessPopup(false)
-        navigate("/") // ✅ về home
+        navigate("/")
         window.scrollTo(0, 0)
     }
 
     return (
         <div className='place-order'>
 
-            {/* POPUP SUCCESS */}
+            {/* POPUP */}
             {showSuccessPopup &&
                 <div className="popup-overlay">
                     <div className="popup-box">
-                        <h2>🎉 Order Successful!</h2>
-                        <p>Please check your email for confirmation.</p>
+                        <h2>🎉 Order Created!</h2>
+
+                        {!user && paymentMethod === "CARD"
+                            ? <p>Please check your email to complete payment.</p>
+                            : <p>Your order has been placed successfully.</p>
+                        }
+
                         <button onClick={handleClosePopup}>
                             OK
                         </button>
