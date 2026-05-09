@@ -1,0 +1,96 @@
+.guest-track-container {
+    min-height: 80vh;
+    padding: 50px 20px;
+    background: #f8f9fc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.guest-track-box {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.guest-track-box h2 {
+    margin-bottom: 10px;
+    color: #222;
+}
+
+.guest-track-box p {
+    color: gray;
+    margin-bottom: 20px;
+}
+
+.guest-track-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.guest-track-box input:focus {
+    border-color: tomato;
+}
+
+.guest-track-box button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: tomato;
+    color: white;
+    font-size: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.guest-track-box button:hover {
+    background: rgb(230, 70, 40);
+}
+
+.guest-order-result {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.guest-order-result h3 {
+    margin-bottom: 20px;
+    color: tomato;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-items-box {
+    margin-top: 20px;
+}
+
+.order-items-box h4 {
+    margin-bottom: 12px;
+}
+
+.order-item {
+    background: #f8f8f8;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}

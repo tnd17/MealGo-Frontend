@@ -7,6 +7,7 @@ import Cart from './pages/Cart/Cart'
 import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
 import MyOrders from './pages/MyOrders/MyOrders'
 import Admin from './pages/Admin/Admin'
+import GuestOrderTracking from './pages/GuestOrderTracking/GuestOrderTracking'
 
 import Footer from './components/Footer/Footer'
 import LoginPopup from './components/LoginPopup/LoginPopup'
@@ -59,6 +60,7 @@ const App = () => {
               <Route path='/myorders' element={<MyOrders />} />
               <Route path='/admin' element={<Admin />} />
               <Route path='/payment/:id' element={<Payment />} />
+              <Route path='/guest-order' element={<GuestOrderTracking />} />
             </Routes>
           </div>
 
