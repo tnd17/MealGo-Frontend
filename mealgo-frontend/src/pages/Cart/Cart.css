@@ -61,24 +61,26 @@
 .cart-promocode-input{
     margin-top: 10px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background-color: #eaeaea;
-    border-radius: 4px;
+    gap: 10px;              /* tạo khoảng cách thật giữa input và button */
 }
 .cart-promocode-input input{
-    background: transparent;
-    border: none;
+    background: white;
+    border: 1px solid #ccc;
     outline: none;
-    padding-left: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    width: 220px;
 }
 .cart-promocode-input button{
     width: max(10vw,150px);
     padding: 12px 5px;
-    background-color: black;
+    background-color: tomato;
     border: none;
     color: white;
-    border-radius: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 @media (max-width:750px) {
     .cart-bottom{
@@ -87,4 +89,20 @@
     .cart-promocode{
         justify-content: start;
     }
+}
+
+.cart-promocode-input button:hover {
+    opacity: 0.9;
+}
+
+/* guest disabled style */
+.cart-promocode-input input:disabled {
+    background: #f2f2f2;
+    color: #999;
+    cursor: not-allowed; /* dấu cấm */
+}
+
+.cart-promocode-input button:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed; /* dấu cấm */
 }

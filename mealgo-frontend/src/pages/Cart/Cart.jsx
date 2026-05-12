@@ -3,6 +3,9 @@ import './Cart.css'
 import { StoreContext } from '../../context/storeContext'
 import { useLocation, useNavigate } from 'react-router-dom';
 import { foodImages } from '../../assets/assets';
+import { AuthContext } from '../../context/authContext';
+import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 const Cart = () => {
 
@@ -30,6 +33,47 @@ const Cart = () => {
 
     // cho phép guest checkout
     navigate('/order');
+  }
+
+  const { user } = useContext(AuthContext)
+
+  const { discountAmount, setDiscountAmount, appliedVoucher, setAppliedVoucher } = useContext(StoreContext)
+
+  const [voucherInput, setVoucherInput] = React.useState("")
+
+  const handleApplyVoucher = async () => {
+
+    if (!user) {
+      setMessage({
+        type: "error",
+        text: "Login required to use voucher"
+      })
+      return
+    }
+
+    try {
+      const res = await axios.post(
+        `${API_URL}/vouchers/apply`,
+        {
+          code: voucherInput,
+          totalAmount: getTotalCartAmount()
+        }
+      )
+
+      setDiscountAmount(res.data.discountAmount)
+      setAppliedVoucher(voucherInput)
+
+      setMessage({
+        type: "success",
+        text: "Voucher applied successfully"
+      })
+
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data || "Invalid voucher"
+      })
+    }
   }
 
   return (
@@ -102,8 +146,17 @@ const Cart = () => {
             <hr />
 
             <div className="cart-total-details">
+              <p>Discount</p>
+              <p>-${discountAmount}</p>
+              <hr />
               <b>Total</b>
-              <b>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</b>
+              <b>
+                {
+                  getTotalCartAmount() === 0
+                    ? 0
+                    : getTotalCartAmount() + 2 - discountAmount
+                }
+              </b>
             </div>
           </div>
 
@@ -114,17 +167,34 @@ const Cart = () => {
 
         <div className="cart-promocode">
           <div>
-            <p>If you have a promo code, Enter it here</p>
+            <p>
+              {user
+                ? "Enter voucher code"
+                : "Login to use voucher"}
+            </p>
+
             <div className="cart-promocode-input">
-              <input type="text" placeholder='promo code' />
-              <button>Submit</button>
+              <input
+                type="text"
+                placeholder='Voucher code'
+                disabled={!user}
+                value={voucherInput}
+                onChange={(e) => setVoucherInput(e.target.value)}
+              />
+
+              <button
+                onClick={handleApplyVoucher}
+                disabled={!user}
+              >
+                Apply
+              </button>
             </div>
           </div>
         </div>
 
       </div>
 
-    </div>
+    </div >
   )
 }
 

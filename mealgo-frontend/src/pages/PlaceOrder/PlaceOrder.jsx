@@ -12,7 +12,15 @@ import { API_URL } from '../../config/api'
 
 const PlaceOrder = () => {
 
-    const { cartItems, getTotalCartAmount, clearCart } = useContext(StoreContext)
+    const {
+        cartItems,
+        getTotalCartAmount,
+        clearCart,
+        discountAmount,
+        appliedVoucher,
+        setDiscountAmount,
+        setAppliedVoucher
+    } = useContext(StoreContext)
     const { user } = useContext(AuthContext)
     const navigate = useNavigate()
 
@@ -46,7 +54,7 @@ const PlaceOrder = () => {
     const total =
         getTotalCartAmount() === 0
             ? 0
-            : getTotalCartAmount() + 2
+            : getTotalCartAmount() + 2 - discountAmount
 
     // =========================
     // HANDLE ORDER
@@ -65,7 +73,8 @@ const PlaceOrder = () => {
             address,
             note,
             paymentMethod,
-            items: cartOrderItems
+            items: cartOrderItems,
+            voucherCode: appliedVoucher
         }
 
         try {
@@ -86,6 +95,8 @@ const PlaceOrder = () => {
                     }
 
                     setShowSuccessPopup(true)
+                    setDiscountAmount(0)
+                    setAppliedVoucher("")
                 }
 
                 // =========================
@@ -94,6 +105,8 @@ const PlaceOrder = () => {
                 else if (!user && paymentMethod === "CARD") {
 
                     setShowSuccessPopup(true)
+                    setDiscountAmount(0)
+                    setAppliedVoucher("")
                 }
 
                 // =========================
@@ -106,6 +119,8 @@ const PlaceOrder = () => {
                     setTimeout(() => {
                         window.scrollTo(0, 0)
                     }, 100)
+                    setDiscountAmount(0)
+                    setAppliedVoucher("")
                 }
             }
 
@@ -310,6 +325,16 @@ const PlaceOrder = () => {
                         <p>Delivery</p>
                         <p>$2</p>
                     </div>
+
+                    {/* chỉ hiện khi có voucher */}
+                    {discountAmount > 0 && (
+                        <div className="cart-total-details">
+                            <p>Discount</p>
+                            <p style={{ color: "green" }}>
+                                -${discountAmount}
+                            </p>
+                        </div>
+                    )}
 
                     <hr />
 

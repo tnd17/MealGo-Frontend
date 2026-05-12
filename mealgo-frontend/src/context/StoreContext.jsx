@@ -10,6 +10,9 @@ const StoreContextProvider = (props) => {
     const [food_list,setFoodList] = useState([]);
     const [menu_list,setMenuList] = useState([]);
 
+    const [discountAmount, setDiscountAmount] = useState(0);
+    const [appliedVoucher, setAppliedVoucher] = useState(null);
+
     const { user } = useContext(AuthContext);
 
     useEffect(()=>{
@@ -125,7 +128,11 @@ const StoreContextProvider = (props) => {
         addToCart,
         removeFromCart,
         getTotalCartAmount,
-        clearCart
+        clearCart,
+        discountAmount,
+        setDiscountAmount,
+        appliedVoucher,
+        setAppliedVoucher,
     }
     return (
         <StoreContext.Provider value={contextValue}>
