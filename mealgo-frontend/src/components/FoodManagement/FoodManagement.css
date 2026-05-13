@@ -1,0 +1,141 @@
+.food-management {
+    width: 100%;
+}
+
+/* header */
+.food-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.add-food-btn {
+    background: tomato;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* search section */
+.food-tools {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.food-tools input,
+.food-tools select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+/* search button */
+.search-btn {
+    background: black;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* table */
+.food-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.food-table th {
+    background: #f5f5f5;
+    padding: 14px;
+    text-align: left;
+}
+
+.food-table td {
+    padding: 14px;
+    border-top: 1px solid #eee;
+}
+
+.food-table img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* buttons */
+.edit-btn {
+    background: royalblue;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-right: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background: crimson;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.food-modal {
+    width: 500px;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.food-modal input,
+.food-modal select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.save-btn {
+    background: tomato;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: gray;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}

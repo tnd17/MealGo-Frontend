@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { assets } from '../../assets/assets'
 import axios from 'axios'
 import { API_URL } from '../../config/api'
-
+import FoodManagement from '../../components/FoodManagement/FoodManagement'
 const Admin = () => {
 
   const { user, logout } = useContext(AuthContext)
@@ -246,10 +246,7 @@ const Admin = () => {
           }
 
           {tab === "foods" &&
-            <>
-              <h1>Foods</h1>
-              <p>Add / Edit / Delete foods.</p>
-            </>
+            <FoodManagement />
           }
 
           {tab === "users" &&
