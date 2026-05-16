@@ -69,6 +69,6 @@ npm run dev
 
 ---
 
-##Connect with backend
+## Connect with backend
 
 This frontend communicates with MealGo Backend built using Spring Boot
