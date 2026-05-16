@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react'
 import './Navbar.css'
 import { assets } from '../../assets/assets'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../context/storeContext';
 import { AuthContext } from '../../context/authContext';
 
 const Navbar = ({ openLogin }) => {
+
+  const navigate = useNavigate()
 
   const [menu, setMenu] = useState("home");
 
@@ -25,23 +27,29 @@ const Navbar = ({ openLogin }) => {
         <a href='#footer' onClick={() => setMenu("contact-us")} className={menu === "contact-us" ? "active" : ""}>contact us</a>
       </ul>
       <div className="navbar-right">
-        <img src={assets.search_icon} alt="" />
+        {/*<img src={assets.search_icon} alt="" />*/}
         <div className="navbar-search-icon">
-          <Link to='/cart' onClick={() => window.scrollTo(0,0)}><img src={assets.basket_icon} alt="" /></Link>
+          <Link to='/cart' onClick={() => window.scrollTo(0, 0)}><img src={assets.basket_icon} alt="" /></Link>
           <div className={getTotalCartAmount() === 0 ? "" : "dot"}></div>
         </div>
 
-        {user ?
+        {user ? (
           <div className="navbar-user">
             <p>Hi, {user.name}</p>
+
+            {user.role === "ADMIN" && (
+              <button onClick={() => navigate("/admin")}>
+                Admin Panel
+              </button>
+            )}
 
             <Link to='/myorders'>My Orders</Link>
 
             <button onClick={logout}>Logout</button>
           </div>
-          :
+        ) : (
           <button onClick={() => openLogin("navbar")}>sign in</button>
-        }
+        )}
 
       </div>
     </div>

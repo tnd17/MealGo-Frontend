@@ -151,3 +151,39 @@
     background:gray;
     cursor:not-allowed;
 }
+
+/* DASHBOARD */
+.dashboard-cards{
+    margin-top:30px;
+    display:flex;
+    gap:25px;
+    flex-wrap:wrap;
+}
+
+.card{
+    background:white;
+    min-width:250px;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 8px 20px rgba(0,0,0,0.12);
+}
+
+.card h3{
+    margin:0;
+    font-size:18px;
+    color:#555;
+    font-weight:600;
+}
+
+.card p{
+    margin-top:20px;
+    font-size:32px;
+    font-weight:bold;
+    color:tomato;
+}

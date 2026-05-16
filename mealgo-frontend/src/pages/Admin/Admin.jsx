@@ -8,13 +8,15 @@ import { API_URL } from '../../config/api'
 import FoodManagement from '../../components/FoodManagement/FoodManagement'
 const Admin = () => {
 
+  const [foods, setFoods] = useState([])
+
   const { user, logout } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const [tab, setTab] = useState("dashboard")
   const [orders, setOrders] = useState([])
 
-  const [loadingConfirm, setLoadingConfirm] = useState(null) // 🔥 chống spam click
+  const [loadingConfirm, setLoadingConfirm] = useState(null) // chống spam click
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") {
@@ -26,12 +28,26 @@ const Admin = () => {
     if (tab === "orders") {
       loadOrders()
     }
+
+    if (tab === "dashboard") {
+      loadOrders()
+      loadFoods()
+    }
   }, [tab])
 
   const loadOrders = async () => {
     try {
       const res = await axios.get(`${API_URL}/orders/admin`)
       setOrders(res.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const loadFoods = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/foods`)
+      setFoods(res.data)
     } catch (error) {
       console.log(error)
     }
@@ -53,7 +69,7 @@ const Admin = () => {
     navigate("/")
   }
 
-  // 🔥 CONFIRM PAYMENT (EMAIL FLOW)
+  // CONFIRM PAYMENT
   const confirmPayment = async (orderId) => {
     if (loadingConfirm) return // chống double click
 
@@ -122,12 +138,12 @@ const Admin = () => {
             Foods
           </button>
 
-          <button
+          {/*<button
             className={tab === "users" ? "active" : ""}
             onClick={() => setTab("users")}
           >
             Users
-          </button>
+          </button>*/}
 
           <button onClick={() => navigate("/")}>
             Back to Shop
@@ -141,7 +157,29 @@ const Admin = () => {
           {tab === "dashboard" &&
             <>
               <h1>Dashboard</h1>
-              <p>Welcome back admin.</p>
+              <p>System overview</p>
+
+              <div className="dashboard-cards">
+                <div className="card">
+                  <h3>Total Foods</h3>
+                  <p>{foods.length}</p>
+                </div>
+
+                <div className="card">
+                  <h3>Total Orders</h3>
+                  <p>{orders.length}</p>
+                </div>
+
+                <div className="card">
+                  <h3>Pending Orders</h3>
+                  <p>
+                    {
+                      orders.filter(order => order.status === "PENDING").length
+                    }
+                  </p>
+                </div>
+
+              </div>
             </>
           }
 
@@ -249,12 +287,12 @@ const Admin = () => {
             <FoodManagement />
           }
 
-          {tab === "users" &&
+          {/*  {tab === "users" &&
             <>
               <h1>Users</h1>
               <p>View all registered users.</p>
             </>
-          }
+          }*/}
 
         </div>
 
