@@ -1,24 +1,74 @@
-# MealGo - Frontend
+# MealGo Frontend
 
-MealGo is a web-based food ordering system developed as a course project.
-This repository contains the frontend application of the system.
+MealGo Frontend is the client-side application of the MealGo food ordering system.
 
-## Project Overview
+Users can browse foods, place orders, track orders, and interact with the platform through a responsive web interface.
 
-MealGo allows user to:
-- Browse available food
-- Add food to cart
-- Place food orders
-- Keep track of the order's process
-- Manage user authentication (login/register)
+This project is developed as a university course project.
 
-This frontend application communicates with the MealGo Backend API to fetch and manage data.
+---
+
+## Features
+
+### Customer Features
+- Browse food menu
+- Filter by category
+- Add/remove cart items
+- Apply voucher
+- Place orders
+- Track orders
+- Guest checkout
+- Login/Register
+
+### Admin Features
+- Manage foods
+- Upload food images
+- Manage orders
+- Update order status
+- Confirm guest payment
+
+---
 
 ## Tech Stack
 
-This frontend is built using:
-- Frontend: ReactJS
-- Backend: Spring Boot
-- Database: MySQL
-- ORM: Spring Data JPA
-- Testing API: Postman
+- ReactJS
+- Vite
+- Axios
+- React Router
+- CSS
+- Docker
+
+---
+
+## Project Structure
+
+mealgo-frontend/src
+
+- assets
+- components
+- config
+- context
+- pages
+
+---
+
+## Running Locally
+
+1. Clone repository
+
+```bash
+git clone https://github.com/tnd17/MealGo-Frontend.git
+```
+
+2. Run project
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+##Connect with backend
+
+This frontend communicates with MealGo Backend built using Spring Boot
