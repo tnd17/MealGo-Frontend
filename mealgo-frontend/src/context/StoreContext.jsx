@@ -123,6 +123,8 @@ const StoreContextProvider = (props) => {
     const contextValue = {
         food_list,
         menu_list,
+        fetchFoods,
+        fetchCategories,
         cartItems,
         setCartItems,
         addToCart,

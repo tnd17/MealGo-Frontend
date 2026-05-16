@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import axios from 'axios'
 import { API_URL } from '../../config/api'
 import './FoodManagement.css'
 import { foodImages } from '../../assets/assets'
+import { StoreContext } from '../../context/storeContext'
 
 const FoodManagement = () => {
+
+    const { fetchFoods } = useContext(StoreContext)
 
     const [foods, setFoods] = useState([])
     const [categories, setCategories] = useState([])
@@ -113,6 +116,7 @@ const FoodManagement = () => {
 
         setShowModal(false)
         loadFoods()
+        fetchFoods()
     }
 
     // =========================
@@ -127,6 +131,7 @@ const FoodManagement = () => {
 
         await axios.delete(`${API_URL}/foods/${id}`)
         loadFoods()
+        fetchFoods()
     }
 
     // =========================
